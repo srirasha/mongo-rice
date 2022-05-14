@@ -12,7 +12,7 @@ namespace MongoRice.Repositories
     {
         private readonly IMongoCollection<TDocument> _collection;
 
-        public MongoRiceRepository(MongoConfiguration settings)
+        public MongoRiceRepository(IMongoConfiguration settings)
         {
             IMongoDatabase database = new MongoClient(settings.ConnectionString).GetDatabase(settings.Database);
             _collection = database.GetCollection<TDocument>(GetCollectionName(typeof(TDocument)));
@@ -58,7 +58,7 @@ namespace MongoRice.Repositories
             var filter = Builders<TDocument>.Filter.Eq(doc => doc.Id, document.Id);
             await _collection.FindOneAndReplaceAsync(filter, document, null, cancellationToken);
         }
-        
+
         public async Task DeleteById(string id, CancellationToken cancellationToken = default)
         {
             ObjectId objectId = new(id);
