@@ -23,14 +23,14 @@ namespace MongoRice.Repositories
             return _collection.AsQueryable();
         }
 
-        public async virtual Task<IEnumerable<TDocument>> FilterBy(Expression<Func<TDocument, bool>> filterExpression, CancellationToken cancellationToken = default)
+        public async virtual Task<IEnumerable<TDocument>> Find(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default)
         {
-            return await _collection.Find(filterExpression).ToListAsync(cancellationToken);
+            return await _collection.Find(filter).ToListAsync(cancellationToken);
         }
 
-        public async virtual Task<Maybe<TDocument>> FindOne(Expression<Func<TDocument, bool>> filterExpression, CancellationToken cancellationToken = default)
+        public async virtual Task<Maybe<TDocument>> FindOne(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default)
         {
-            return Maybe.From(await _collection.Find(filterExpression).FirstOrDefaultAsync(cancellationToken));
+            return Maybe.From(await _collection.Find(filter).FirstOrDefaultAsync(cancellationToken));
         }
 
         public async virtual Task<Maybe<TDocument>> FindById(string id, CancellationToken cancellationToken = default)
@@ -47,7 +47,7 @@ namespace MongoRice.Repositories
             return document;
         }
 
-        public virtual async Task<ICollection<TDocument>> InsertMany(ICollection<TDocument> documents, CancellationToken cancellationToken)
+        public virtual async Task<ICollection<TDocument>> InsertMany(ICollection<TDocument> documents, CancellationToken cancellationToken = default)
         {
             await _collection.InsertManyAsync(documents, null, cancellationToken);
             return documents;
@@ -66,20 +66,21 @@ namespace MongoRice.Repositories
             await _collection.FindOneAndDeleteAsync(filter, null, cancellationToken);
         }
 
-        public async Task DeleteMany(Expression<Func<TDocument, bool>> filterExpression, CancellationToken cancellationToken = default)
+        public async Task DeleteMany(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default)
         {
-            await _collection.DeleteManyAsync(filterExpression, cancellationToken);
+            await _collection.DeleteManyAsync(filter, cancellationToken);
         }
 
-        public async Task DeleteOne(Expression<Func<TDocument, bool>> filterExpression, CancellationToken cancellationToken = default)
+        public async Task DeleteOne(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default)
         {
-            await _collection.FindOneAndDeleteAsync(filterExpression, null, cancellationToken);
+            await _collection.FindOneAndDeleteAsync(filter, null, cancellationToken);
         }
 
         public async Task<(int totalPages, IReadOnlyList<TDocument> data)> Find(FilterDefinition<TDocument> filterDefinition,
                                                                            SortDefinition<TDocument> sortDefinition,
                                                                            int page,
-                                                                           int pageSize)
+                                                                           int pageSize,
+                                                                           CancellationToken cancellationToken = default)
         {
             AggregateFacet<TDocument, AggregateCountResult> countFacet =
                 AggregateFacet.Create("count",

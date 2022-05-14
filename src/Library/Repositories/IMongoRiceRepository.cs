@@ -11,17 +11,18 @@ namespace MongoRice.Repositories
 
         Task DeleteById(string id, CancellationToken cancellationToken = default);
 
-        Task DeleteMany(Expression<Func<TDocument, bool>> filterExpression, CancellationToken cancellationToken = default);
+        Task DeleteMany(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default);
 
-        Task DeleteOne(Expression<Func<TDocument, bool>> filterExpression, CancellationToken cancellationToken = default);
+        Task DeleteOne(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default);
 
-        Task<IEnumerable<TDocument>> FilterBy(Expression<Func<TDocument, bool>> filterExpression, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TDocument>> Find(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default);
 
-        Task<(int totalPages, IReadOnlyList<TDocument> data)> Find(FilterDefinition<TDocument> filterDefinition,
-                                                                   SortDefinition<TDocument> sortDefinition,
+        Task<(int totalPages, IReadOnlyList<TDocument> data)> Find(FilterDefinition<TDocument> filter,
+                                                                   SortDefinition<TDocument> sort,
                                                                    int page,
-                                                                   int pageSize);
-        Task<Maybe<TDocument>> FindOne(Expression<Func<TDocument, bool>> filterExpression, CancellationToken cancellationToken = default);
+                                                                   int pageSize,
+                                                                   CancellationToken cancellationToken = default);
+        Task<Maybe<TDocument>> FindOne(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default);
 
         Task<Maybe<TDocument>> FindById(string id, CancellationToken cancellationToken = default);
 
