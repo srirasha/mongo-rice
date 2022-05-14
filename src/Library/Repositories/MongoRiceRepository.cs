@@ -76,10 +76,51 @@ namespace MongoRice.Repositories
             await _collection.FindOneAndDeleteAsync(filterExpression, null, cancellationToken);
         }
 
+        public async Task<(int totalPages, IReadOnlyList<TDocument> data)> Find(FilterDefinition<TDocument> filterDefinition,
+                                                                           SortDefinition<TDocument> sortDefinition,
+                                                                           int page,
+                                                                           int pageSize)
+        {
+            AggregateFacet<TDocument, AggregateCountResult> countFacet =
+                AggregateFacet.Create("count",
+                                      PipelineDefinition<TDocument, AggregateCountResult>.Create(new[] { PipelineStageDefinitionBuilder.Count<TDocument>() }));
+
+            AggregateFacet<TDocument, TDocument> dataFacet =
+                AggregateFacet.Create("data",
+                                      PipelineDefinition<TDocument, TDocument>.Create(new[]
+                                      {
+                                          PipelineStageDefinitionBuilder.Sort(sortDefinition),
+                                          PipelineStageDefinitionBuilder.Skip<TDocument>((page - 1) * pageSize),
+                                          PipelineStageDefinitionBuilder.Limit<TDocument>(pageSize)
+                                      }));
+
+
+            List<AggregateFacetResults> aggregation = await _collection.Aggregate().Match(filterDefinition)
+                                                                                   .Facet(countFacet, dataFacet)
+                                                                                   .ToListAsync();
+
+            long? count = aggregation.First()
+                                     .Facets
+                                     .First(x => x.Name == "count")
+                                     .Output<AggregateCountResult>()?
+                                     .FirstOrDefault()?
+                                     .Count;
+
+            int totalPages = (int)Math.Ceiling((double)count / pageSize);
+
+            IReadOnlyList<TDocument> data = aggregation.First()
+                                                       .Facets
+                                                       .First(x => x.Name == "data")
+                                                       .Output<TDocument>();
+
+            return (totalPages, data);
+        }
         private static string GetCollectionName(Type documentType)
         {
             return ((CollectionAttribute)documentType.GetCustomAttributes(typeof(CollectionAttribute), true)
                                                      .FirstOrDefault())?.CollectionName;
         }
+
+
     }
 }

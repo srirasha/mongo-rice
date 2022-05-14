@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using MongoDB.Driver;
 using MongoRice.Documents;
 using System.Linq.Expressions;
 
@@ -16,6 +17,10 @@ namespace MongoRice.Repositories
 
         Task<IEnumerable<TDocument>> FilterBy(Expression<Func<TDocument, bool>> filterExpression, CancellationToken cancellationToken = default);
 
+        Task<(int totalPages, IReadOnlyList<TDocument> data)> Find(FilterDefinition<TDocument> filterDefinition,
+                                                                   SortDefinition<TDocument> sortDefinition,
+                                                                   int page,
+                                                                   int pageSize);
         Task<Maybe<TDocument>> FindOne(Expression<Func<TDocument, bool>> filterExpression, CancellationToken cancellationToken = default);
 
         Task<Maybe<TDocument>> FindById(string id, CancellationToken cancellationToken = default);
