@@ -59,6 +59,7 @@ namespace Library.Repositories
             var filter = Builders<TDocument>.Filter.Eq(doc => doc.Id, document.Id);
             await _collection.FindOneAndReplaceAsync(filter, document, null, cancellationToken);
         }
+        
         public async Task DeleteById(string id, CancellationToken cancellationToken = default)
         {
             ObjectId objectId = new(id);
