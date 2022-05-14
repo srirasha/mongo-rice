@@ -8,11 +8,11 @@ using System.Linq.Expressions;
 
 namespace Library.Repositories
 {
-    public class MongoRepository<TDocument> : IMongoRepository<TDocument> where TDocument : IDocument
+    public class MongoRiceRepository<TDocument> : IMongoRiceRepository<TDocument> where TDocument : IDocument
     {
         private readonly IMongoCollection<TDocument> _collection;
 
-        public MongoRepository(IMongoConfiguration settings)
+        public MongoRiceRepository(IMongoConfiguration settings)
         {
             IMongoDatabase database = new MongoClient(settings.ConnectionString).GetDatabase(settings.DatabaseName);
             _collection = database.GetCollection<TDocument>(GetCollectionName(typeof(TDocument)));

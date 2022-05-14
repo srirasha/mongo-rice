@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace Library.Repositories
 {
-    public interface IMongoRepository<TDocument> where TDocument : IDocument
+    public interface IMongoRiceRepository<TDocument> where TDocument : IDocument
     {
         IQueryable<TDocument> AsQueryable();
 
