@@ -1,8 +1,7 @@
-﻿using Library.Configurations;
-using Library.Repositories;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+using MongoRice.Repositories;
 
-namespace Library.Extensions.Services
+namespace MongoRice.Extensions.Services
 {
     public static class ServicesCollectionExtensions
     {

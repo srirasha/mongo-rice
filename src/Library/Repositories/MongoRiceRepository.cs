@@ -1,13 +1,12 @@
 ﻿using CSharpFunctionalExtensions;
-using Library.Attributes;
-using Library.Configurations;
-using Library.Documents;
-using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoRice.Attributes;
+using MongoRice.Configurations;
+using MongoRice.Documents;
 using System.Linq.Expressions;
 
-namespace Library.Repositories
+namespace MongoRice.Repositories
 {
     public class MongoRiceRepository<TDocument> : IMongoRiceRepository<TDocument> where TDocument : IDocument
     {

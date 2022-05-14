@@ -1,4 +1,4 @@
-﻿namespace Library.Configurations
+﻿namespace MongoRice.Configurations
 {
     public interface IMongoConfiguration
     {

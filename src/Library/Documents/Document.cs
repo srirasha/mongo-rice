@@ -1,6 +1,6 @@
 ﻿using MongoDB.Bson;
 
-namespace Library.Documents
+namespace MongoRice.Documents
 {
     public class Document : IDocument
     {
