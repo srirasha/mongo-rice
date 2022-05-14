@@ -1,6 +1,6 @@
 ﻿namespace Library.Configurations
 {
-    public class MongoSettings : IMongoSettings
+    public class MongoConfiguration : IMongoConfiguration
     {
         public string ConnectionString { get; set; }
 

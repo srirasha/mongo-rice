@@ -1,6 +1,6 @@
 ﻿namespace Library.Configurations
 {
-    public interface IMongoSettings
+    public interface IMongoConfiguration
     {
         public string ConnectionString { get; set; }
 
