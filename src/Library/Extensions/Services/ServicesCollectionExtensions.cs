@@ -6,9 +6,9 @@ namespace Library.Extensions.Services
 {
     public static class ServicesCollectionExtensions
     {
-        public static void AddMongoRice(this IServiceCollection services, IMongoConfiguration configuration)
+        public static void AddMongoRice(this IServiceCollection services)
         {
-            services.AddScoped(typeof(IMongoRiceRepository<>), typeof(MongoRiceRepository<>));
+            services.AddSingleton(typeof(IMongoRiceRepository<>), typeof(MongoRiceRepository<>));
         }
     }
 }

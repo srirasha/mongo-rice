@@ -2,6 +2,7 @@
 using Library.Attributes;
 using Library.Configurations;
 using Library.Documents;
+using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Linq.Expressions;
@@ -12,9 +13,9 @@ namespace Library.Repositories
     {
         private readonly IMongoCollection<TDocument> _collection;
 
-        public MongoRiceRepository(IMongoConfiguration settings)
+        public MongoRiceRepository(MongoConfiguration settings)
         {
-            IMongoDatabase database = new MongoClient(settings.ConnectionString).GetDatabase(settings.DatabaseName);
+            IMongoDatabase database = new MongoClient(settings.ConnectionString).GetDatabase(settings.Database);
             _collection = database.GetCollection<TDocument>(GetCollectionName(typeof(TDocument)));
         }
 

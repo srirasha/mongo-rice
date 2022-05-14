@@ -2,7 +2,7 @@
 
 namespace Library.Documents
 {
-    public class Document
+    public class Document : IDocument
     {
         public DateTime CreatedAt => Id.CreationTime;
 
