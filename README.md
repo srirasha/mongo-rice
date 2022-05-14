@@ -24,7 +24,7 @@ See all the features [here](src/Library/Repositories/IMongoRiceRepository.cs).
 If you are using IOC, inject MongoRice like this:
 
 ```C#
-builder.Services.AddMongoRice(new MongoConfiguration("connectionString", "database"));
+builder.Services.AddMongoRice(new MongoConfiguration(){ ConnectionString = "myGreatConnectionString", Database = "mySuperDatabase" });
 ```
 
 # Usage
