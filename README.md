@@ -39,7 +39,9 @@ public class AvatarDocument : Document
 ```
 
 2. Declare your instance of your repository:
+
 - by dependency injection:
+
 ```C#
 public class GetAvatarByIdQueryHandler : IRequestHandler<GetAvatarByIdQuery, Maybe<AvatarDocument>>
 {
@@ -56,12 +58,26 @@ public class GetAvatarByIdQueryHandler : IRequestHandler<GetAvatarByIdQuery, May
     }
 }
 ```
- - by manual creation of your collection instance:
+ - by manual instanciation:
 
 ```C#
 MongoRiceRepository<AvatarDocument> avatars = new(new MongoConfiguration() { ConnectionString = "myGreatConnectionString", Database = "mySuperDatabase" });
 
 Maybe<AvatarDocument> maybeAvatar = await avatars.FindById("62779e4718dd7e243339b187");
+```
+
+# Examples
+
+## Paginated search:
+
+Get the first page of players profiles with a level greater or equal to 100, ordered by level descending, paginated by 10 elements:
+```C#
+PaginatedResult<PlayerProfileDocument> paginatedResult =
+await _playerProfiles.Find(Builders<PlayerProfileDocument>.Filter.Gte(profile => profile.Level, 100),
+                           Builders<PlayerProfileDocument>.Sort.Descending(profile => profile.Level),
+                           1,
+                           10,
+                           cancellationToken);
 ```
 That's it!
 
