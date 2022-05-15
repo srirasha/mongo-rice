@@ -1,0 +1,30 @@
+image: mcr.microsoft.com/dotnet/sdk:6.0
+
+stages:
+  - build
+  - test
+
+variables:
+  project: "MongoRice"
+
+build:
+  stage: build
+  only:
+    - next
+    - master
+  variables:
+    build_path: "src/$project"
+  script:
+    - "cd $build_path"
+    - "dotnet build"
+
+test:
+  stage: test
+  only:
+    - next
+    - master
+  variables:
+    test_path: "tests/$project.Tests"
+  script:
+    - "cd $test_path"
+    - "dotnet test"
