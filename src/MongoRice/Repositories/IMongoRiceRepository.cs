@@ -23,6 +23,7 @@ namespace MongoRice.Repositories
                                               int page,
                                               int pageSize,
                                               CancellationToken cancellationToken = default);
+
         Task<Maybe<TDocument>> FindOne(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default);
 
         Task<Maybe<TDocument>> FindById(string id, CancellationToken cancellationToken = default);
