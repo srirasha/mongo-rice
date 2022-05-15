@@ -5,11 +5,9 @@ VisualStudioVersion = 17.2.32505.173
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6E867E95-2FF5-42C5-8F45-6E09DAB6DFB1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoRice", "src\Library\MongoRice.csproj", "{A260144F-E14C-4FBA-9C2E-A73881FCB25C}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FA6CB652-9114-4384-B106-29AB5B40924E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoRice.Tests", "tests\MongoRice.Tests\MongoRice.Tests.csproj", "{D6CED687-7E88-4B1A-AEDC-09A1DDC39403}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoRice.Tests", "tests\MongoRice.Tests\MongoRice.Tests.csproj", "{D6CED687-7E88-4B1A-AEDC-09A1DDC39403}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4D10E4E4-5C1C-4F4F-98A2-7419B6CEB65E}"
 	ProjectSection(SolutionItems) = preProject
@@ -17,27 +15,29 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoRice", "src\MongoRice\MongoRice.csproj", "{7CB4DA49-8227-4615-91A9-17028C30CDBA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A260144F-E14C-4FBA-9C2E-A73881FCB25C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A260144F-E14C-4FBA-9C2E-A73881FCB25C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A260144F-E14C-4FBA-9C2E-A73881FCB25C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A260144F-E14C-4FBA-9C2E-A73881FCB25C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D6CED687-7E88-4B1A-AEDC-09A1DDC39403}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D6CED687-7E88-4B1A-AEDC-09A1DDC39403}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6CED687-7E88-4B1A-AEDC-09A1DDC39403}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6CED687-7E88-4B1A-AEDC-09A1DDC39403}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CB4DA49-8227-4615-91A9-17028C30CDBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CB4DA49-8227-4615-91A9-17028C30CDBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CB4DA49-8227-4615-91A9-17028C30CDBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CB4DA49-8227-4615-91A9-17028C30CDBA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{A260144F-E14C-4FBA-9C2E-A73881FCB25C} = {6E867E95-2FF5-42C5-8F45-6E09DAB6DFB1}
 		{D6CED687-7E88-4B1A-AEDC-09A1DDC39403} = {FA6CB652-9114-4384-B106-29AB5B40924E}
+		{7CB4DA49-8227-4615-91A9-17028C30CDBA} = {6E867E95-2FF5-42C5-8F45-6E09DAB6DFB1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {254AD6FC-5A80-4DA4-B4C3-A667C0D4F1E2}
