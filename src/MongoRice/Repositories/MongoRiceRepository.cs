@@ -24,9 +24,11 @@ namespace MongoRice.Repositories
             return _collection.AsQueryable();
         }
 
-        public async virtual Task<IEnumerable<TDocument>> Find(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default)
+        public async virtual Task<IEnumerable<TDocument>> Find(FilterDefinition<TDocument> filter, SortDefinition<TDocument> sort = null, CancellationToken cancellationToken = default)
         {
-            return await _collection.Find(filter).ToListAsync(cancellationToken);
+            return await _collection.Find(filter)
+                                    .Sort(sort)
+                                    .ToListAsync(cancellationToken);
         }
 
         public async virtual Task<Maybe<TDocument>> FindOne(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default)
@@ -116,7 +118,7 @@ namespace MongoRice.Repositories
                                                        .First(x => x.Name == "data")
                                                        .Output<TDocument>();
 
-            return new PaginatedResult<TDocument>() { PageIndex = page, Result = data, TotalPages = totalPages };
+            return new PaginatedResult<TDocument>() { Count = count.Value, PageIndex = page, Result = data, TotalPages = totalPages };
         }
         private static string GetCollectionName(Type documentType)
         {

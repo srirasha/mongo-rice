@@ -2,7 +2,6 @@
 using MongoDB.Driver;
 using MongoRice.Documents;
 using MongoRice.Entities;
-using System.Linq.Expressions;
 
 namespace MongoRice.Repositories
 {
@@ -16,7 +15,7 @@ namespace MongoRice.Repositories
 
         Task DeleteOne(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default);
 
-        Task<IEnumerable<TDocument>> Find(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TDocument>> Find(FilterDefinition<TDocument> filter, SortDefinition<TDocument> sort = null, CancellationToken cancellationToken = default);
 
         Task<PaginatedResult<TDocument>> Find(FilterDefinition<TDocument> filter,
                                               SortDefinition<TDocument> sort,
