@@ -58,12 +58,13 @@ public class GetPlayerProfileByIdQueryHandler : IRequestHandler<GetPlayerProfile
     }
 }
 ```
+
  - by manual instanciation:
 
 ```C#
 MongoRiceRepository<PlayerProfileDocument> playerProfiles = new(new MongoConfiguration() { ConnectionString = "myGreatConnectionString", Database = "mySuperDatabase" });
 
-Maybe<PlayerProfileDocument> maybePlayerProfiles = await playerProfiles.FindById("62779e4718dd7e243339b187");
+Maybe<PlayerProfileDocument> maybePlayerProfile = await playerProfiles.FindById("62779e4718dd7e243339b187");
 ```
 
 # Examples
@@ -81,19 +82,18 @@ IEnumerable<PlayerProfileDocument> searchResult = await _playerProfiles.Find(Bui
 Get all the players with a level greater or equal to 100 ordered by level descending:
 
 ```C#
-PaginatedResult<PlayerProfileDocument> paginatedResult =
+IEnumerable<PlayerProfileDocument> searchResult =
 await _playerProfiles.Find(Builders<PlayerProfileDocument>.Filter.Gte(profile => profile.Level, 100),
                            Builders<PlayerProfileDocument>.Sort.Descending(profile => profile.Level),
                            cancellationToken);
 ```
-
 
 ## Paginated search:
 
 Get the first page of players profiles with a level greater or equal to 100, ordered by level descending, paginated by 10 elements:
 
 ```C#
-PaginatedResult<PlayerProfileDocument> paginatedResult =
+PaginatedResult<PlayerProfileDocument> paginatedSearchResult =
 await _playerProfiles.Find(Builders<PlayerProfileDocument>.Filter.Gte(profile => profile.Level, 100),
                            Builders<PlayerProfileDocument>.Sort.Descending(profile => profile.Level),
                            1,
