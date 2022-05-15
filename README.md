@@ -1,17 +1,12 @@
 
+
 # mongo-rice
 
-Mongo-rice is a generic Mongo repository library built for .NET applications.
-
-## Table of Contents
-
-* [Features](#features)
-* [Getting started](#getting-started)
-* [Usage](#usage)
+MongoRice is a generic Mongo repository library built for .NET applications.
 
 # Features
 
-Mongo-rice allow you to execute the main actions on a collection:
+MongoRice allow you to execute the main actions on a collection:
 
 - create
 - delete
@@ -44,7 +39,7 @@ public class AvatarDocument : Document
 ```
 
 2. Declare your instance of your repository:
-- by instance injection:
+- by dependency injection:
 ```C#
 public class GetAvatarByIdQueryHandler : IRequestHandler<GetAvatarByIdQuery, Maybe<AvatarDocument>>
 {
@@ -61,7 +56,7 @@ public class GetAvatarByIdQueryHandler : IRequestHandler<GetAvatarByIdQuery, May
     }
 }
 ```
- - by manually create an instance of a collection:
+ - by manual creation of your collection instance:
 
 ```C#
 MongoRiceRepository<AvatarDocument> avatars = new(new MongoConfiguration() { ConnectionString = "myGreatConnectionString", Database = "mySuperDatabase" });
