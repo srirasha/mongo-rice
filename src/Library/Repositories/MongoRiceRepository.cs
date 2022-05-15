@@ -4,6 +4,7 @@ using MongoDB.Driver;
 using MongoRice.Attributes;
 using MongoRice.Configurations;
 using MongoRice.Documents;
+using MongoRice.Entities;
 using System.Linq.Expressions;
 
 namespace MongoRice.Repositories
@@ -76,11 +77,11 @@ namespace MongoRice.Repositories
             await _collection.FindOneAndDeleteAsync(filter, null, cancellationToken);
         }
 
-        public async Task<(int totalPages, IReadOnlyList<TDocument> data)> Find(FilterDefinition<TDocument> filterDefinition,
-                                                                           SortDefinition<TDocument> sortDefinition,
-                                                                           int page,
-                                                                           int pageSize,
-                                                                           CancellationToken cancellationToken = default)
+        public async Task<PaginatedResult<TDocument>> Find(FilterDefinition<TDocument> filter,
+                                                                                       SortDefinition<TDocument> sort,
+                                                                                       int page,
+                                                                                       int pageSize,
+                                                                                       CancellationToken cancellationToken = default)
         {
             AggregateFacet<TDocument, AggregateCountResult> countFacet =
                 AggregateFacet.Create("count",
@@ -90,20 +91,21 @@ namespace MongoRice.Repositories
                 AggregateFacet.Create("data",
                                       PipelineDefinition<TDocument, TDocument>.Create(new[]
                                       {
-                                          PipelineStageDefinitionBuilder.Sort(sortDefinition),
+                                          PipelineStageDefinitionBuilder.Sort(sort),
                                           PipelineStageDefinitionBuilder.Skip<TDocument>((page - 1) * pageSize),
                                           PipelineStageDefinitionBuilder.Limit<TDocument>(pageSize)
                                       }));
 
 
-            List<AggregateFacetResults> aggregation = await _collection.Aggregate().Match(filterDefinition)
+            List<AggregateFacetResults> aggregation = await _collection.Aggregate().Match(filter)
                                                                                    .Facet(countFacet, dataFacet)
-                                                                                   .ToListAsync();
+                                                                                   .ToListAsync(cancellationToken);
 
             long? count = aggregation.First()
                                      .Facets
                                      .First(x => x.Name == "count")
                                      .Output<AggregateCountResult>()?
+                                     .AsQueryable()
                                      .FirstOrDefault()?
                                      .Count;
 
@@ -114,7 +116,7 @@ namespace MongoRice.Repositories
                                                        .First(x => x.Name == "data")
                                                        .Output<TDocument>();
 
-            return (totalPages, data);
+            return new PaginatedResult<TDocument>() { PageIndex = page, Result = data, TotalPages = totalPages };
         }
         private static string GetCollectionName(Type documentType)
         {
