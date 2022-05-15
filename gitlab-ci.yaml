@@ -9,9 +9,6 @@ variables:
 
 build:
   stage: build
-  only:
-    - next
-    - master
   variables:
     build_path: "src/$project"
   script:
@@ -20,9 +17,6 @@ build:
 
 test:
   stage: test
-  only:
-    - next
-    - master
   variables:
     test_path: "tests/$project.Tests"
   script:
