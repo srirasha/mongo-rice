@@ -1,5 +1,4 @@
 
-
 # mongo-rice
 
 MongoRice is a generic Mongo repository library built for .NET applications.
@@ -18,7 +17,7 @@ See all the features [here](src/Library/Repositories/IMongoRiceRepository.cs).
 
 # Getting started
 
-If you are using IOC, declare MongoRice like this:
+If you are using IOC, you can declare MongoRice like this:
 
 ```C#
 builder.Services.AddMongoRice(new MongoConfiguration(){ ConnectionString = "myGreatConnectionString", Database = "mySuperDatabase" });
@@ -28,11 +27,12 @@ That will be useful to automatically inject all your IMongoRiceRepository withou
 # Usage
 
 1. Create a class that will represent your document on Mongo:
+
 ```C#
-[Collection("avatars")]
-public class AvatarDocument : Document
+[Collection("player-profiles")]
+public class PlayerProfileDocument : Document
 {
-    public string Description { get; set; }
+    public string Level { get; set; }
 
     public string Name { get; set; }
 }
@@ -43,34 +43,55 @@ public class AvatarDocument : Document
 - by dependency injection:
 
 ```C#
-public class GetAvatarByIdQueryHandler : IRequestHandler<GetAvatarByIdQuery, Maybe<AvatarDocument>>
+public class GetPlayerProfileByIdQueryHandler : IRequestHandler<GetPlayerProfileByIdQuery, Maybe<PlayerProfileDocument>>
 {
-    private readonly IMongoRiceRepository<AvatarDocument> _avatars;
+    private readonly IMongoRiceRepository<PlayerProfileDocument> _playerProfiles;
 
-    public GetAvatarByIdQueryHandler(IMongoRiceRepository<AvatarDocument> avatars)
+    public GetPlayerProfileByIdQueryHandler(IMongoRiceRepository<PlayerProfileDocument> playerProfiles)
     {
-        _avatars = avatars;
+        _playerProfiles = playerProfiles;
     }
 
-    public async Task<MaybeAvatarDocument>> Handle(GetAvatarByIdQuery request, CancellationToken cancellationToken)
+    public async Task<Maybe<PlayerProfileDocument>> Handle(GetPlayerProfileByIdQuery request, CancellationToken cancellationToken)
     {
-        return await _avatars.FindById(request.Id, cancellationToken);
+        return await _playerProfiles.FindById(request.Id, cancellationToken);
     }
 }
 ```
  - by manual instanciation:
 
 ```C#
-MongoRiceRepository<AvatarDocument> avatars = new(new MongoConfiguration() { ConnectionString = "myGreatConnectionString", Database = "mySuperDatabase" });
+MongoRiceRepository<PlayerProfileDocument> playerProfiles = new(new MongoConfiguration() { ConnectionString = "myGreatConnectionString", Database = "mySuperDatabase" });
 
-Maybe<AvatarDocument> maybeAvatar = await avatars.FindById("62779e4718dd7e243339b187");
+Maybe<PlayerProfileDocument> maybePlayerProfiles = await playerProfiles.FindById("62779e4718dd7e243339b187");
 ```
 
 # Examples
 
+## Filtered search:
+
+Get all the players with a level greater or equal to 100:
+
+```C#
+IEnumerable<PlayerProfileDocument> searchResult = await _playerProfiles.Find(Builders<PlayerProfileDocument>.Filter.Gte(profile => profile.Level, 100), cancellationToken);
+```
+
+## Filtered and ordered search:
+
+Get all the players with a level greater or equal to 100 ordered by level descending:
+
+```C#
+PaginatedResult<PlayerProfileDocument> paginatedResult =
+await _playerProfiles.Find(Builders<PlayerProfileDocument>.Filter.Gte(profile => profile.Level, 100),
+                           Builders<PlayerProfileDocument>.Sort.Descending(profile => profile.Level),
+                           cancellationToken);
+```
+
+
 ## Paginated search:
 
 Get the first page of players profiles with a level greater or equal to 100, ordered by level descending, paginated by 10 elements:
+
 ```C#
 PaginatedResult<PlayerProfileDocument> paginatedResult =
 await _playerProfiles.Find(Builders<PlayerProfileDocument>.Filter.Gte(profile => profile.Level, 100),
@@ -79,6 +100,3 @@ await _playerProfiles.Find(Builders<PlayerProfileDocument>.Filter.Gte(profile =>
                            10,
                            cancellationToken);
 ```
-That's it!
-
-# Thank you!
