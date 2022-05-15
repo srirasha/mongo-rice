@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoRice.Tests", "tests\Mo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4D10E4E4-5C1C-4F4F-98A2-7419B6CEB65E}"
 	ProjectSection(SolutionItems) = preProject
-		gitlab-ci.yaml = gitlab-ci.yaml
+		.gitlab-ci.yml = .gitlab-ci.yml
 		README.md = README.md
 	EndProjectSection
 EndProject
