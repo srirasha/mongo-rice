@@ -1,11 +1,12 @@
 ﻿using CSharpFunctionalExtensions;
+using FluentValidation;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoRice.Attributes;
 using MongoRice.Configurations;
 using MongoRice.Documents;
 using MongoRice.Entities;
-using System.Linq.Expressions;
+using MongoRice.Validations.Configurations;
 
 namespace MongoRice.Repositories
 {
@@ -13,9 +14,12 @@ namespace MongoRice.Repositories
     {
         private readonly IMongoCollection<TDocument> _collection;
 
-        public MongoRiceRepository(IMongoConfiguration settings)
+        public MongoRiceRepository(IMongoConfiguration configuration)
         {
-            IMongoDatabase database = new MongoClient(settings.ConnectionString).GetDatabase(settings.Database);
+            MongoConfigurationValidator _configValidator = new();
+            _configValidator.ValidateAndThrow(configuration);
+
+            IMongoDatabase database = new MongoClient(configuration.ConnectionString).GetDatabase(configuration.Database);
             _collection = database.GetCollection<TDocument>(GetCollectionName(typeof(TDocument)));
         }
 
