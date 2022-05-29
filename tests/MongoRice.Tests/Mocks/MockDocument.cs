@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoRice.Documents;
 
-namespace MongoRice.Tests.TestData
+namespace MongoRice.Tests.Mocks
 {
     public class MockDocument : IDocument
     {

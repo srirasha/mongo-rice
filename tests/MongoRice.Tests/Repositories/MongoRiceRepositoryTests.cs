@@ -1,11 +1,9 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using FluentValidation;
-using MongoDB.Bson;
 using MongoRice.Configurations;
-using MongoRice.Documents;
 using MongoRice.Repositories;
-using MongoRice.Tests.TestData;
+using MongoRice.Tests.Mocks;
 using Xunit;
 
 namespace MongoRice.Tests.Repositories
