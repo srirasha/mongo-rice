@@ -9,7 +9,7 @@ namespace MongoRice.Extensions.Services
         public static void AddMongoRice(this IServiceCollection services, IMongoConfiguration mongoConfiguration)
         {
             services.AddSingleton(conf => mongoConfiguration);
-            services.AddSingleton(typeof(IMongoRiceRepository<>), typeof(MongoRiceRepository<>));
+            services.AddSingleton(typeof(IMongoRiceRepository<,>), typeof(MongoRiceRepository<,>));
         }
     }
 }

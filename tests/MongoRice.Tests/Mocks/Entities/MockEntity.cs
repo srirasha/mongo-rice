@@ -1,4 +1,4 @@
-﻿namespace MongoRice.Tests.Mocks
+﻿namespace MongoRice.Tests.Mocks.Entities
 {
     public class MockEntity
     {

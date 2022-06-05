@@ -1,9 +1,10 @@
 ﻿using AutoFixture;
+using AutoMapper;
 using FluentAssertions;
 using FluentValidation;
 using MongoRice.Configurations;
 using MongoRice.Repositories;
-using MongoRice.Tests.Mocks;
+using MongoRice.Tests.Mocks.Entities;
 using Xunit;
 
 namespace MongoRice.Tests.Repositories
@@ -11,6 +12,7 @@ namespace MongoRice.Tests.Repositories
     public class MongoRiceRepositoryTests
     {
         private readonly Fixture _fixture = new();
+        Mapper _mapper = new(new MapperConfiguration(map => { map.CreateMap<MockEntity, MockEntityDocument>().ReverseMap(); }));
 
         [Fact]
         public void Instanciation_Should_Throw_ValidationException_when_ConnectionString_IsNullOrEmpty()
@@ -19,7 +21,7 @@ namespace MongoRice.Tests.Repositories
                                                              .With(prop => prop.ConnectionString, string.Empty)
                                                              .Create();
 
-            Action constructor = () => { _ = new MongoRiceRepository<MockEntityDocument>(mongoConfiguration); };
+            Action constructor = () => { _ = new MongoRiceRepository<MockEntity, MockEntityDocument>(mongoConfiguration, _mapper); };
 
             constructor.Should().Throw<ValidationException>("Connection string is empty");
         }
@@ -31,7 +33,10 @@ namespace MongoRice.Tests.Repositories
                                                              .With(prop => prop.Database, string.Empty)
                                                              .Create();
 
-            Action constructor = () => { _ = new MongoRiceRepository<MockEntityDocument>(mongoConfiguration); };
+            MapperConfiguration mapperConfiguration = new MapperConfiguration(map => map.CreateMap<MockEntity, MockEntityDocument>().ReverseMap()) { };
+
+
+            Action constructor = () => { _ = new MongoRiceRepository<MockEntity, MockEntityDocument>(mongoConfiguration, _mapper); };
 
             constructor.Should().Throw<ValidationException>("Database is empty");
         }
