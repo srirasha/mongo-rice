@@ -19,7 +19,7 @@ namespace MongoRice.Tests.Repositories
                                                              .With(prop => prop.ConnectionString, string.Empty)
                                                              .Create();
 
-            Action constructor = () => { _ = new MongoRiceRepository<MockDocument>(mongoConfiguration); };
+            Action constructor = () => { _ = new MongoRiceRepository<MockEntityDocument>(mongoConfiguration); };
 
             constructor.Should().Throw<ValidationException>("Connection string is empty");
         }
@@ -31,7 +31,7 @@ namespace MongoRice.Tests.Repositories
                                                              .With(prop => prop.Database, string.Empty)
                                                              .Create();
 
-            Action constructor = () => { _ = new MongoRiceRepository<MockDocument>(mongoConfiguration); };
+            Action constructor = () => { _ = new MongoRiceRepository<MockEntityDocument>(mongoConfiguration); };
 
             constructor.Should().Throw<ValidationException>("Database is empty");
         }

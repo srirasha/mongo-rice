@@ -3,7 +3,7 @@ using MongoRice.Documents;
 
 namespace MongoRice.Tests.Mocks
 {
-    public class MockDocument : IDocument
+    public class MockEntityDocument : IDocument
     {
         public ObjectId Id { get; set; }
     }
