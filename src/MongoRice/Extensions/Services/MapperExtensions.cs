@@ -25,7 +25,6 @@ namespace MongoRice.Extensions.Services
                 _entityParameter = Expression.Parameter(typeof(TEntity));
             }
 
-            // This is required to modify type parameters
             protected override Expression VisitLambda<T>(Expression<T> node)
             {
                 return Expression.Lambda(
@@ -34,7 +33,6 @@ namespace MongoRice.Extensions.Services
                 );
             }
 
-            // Do member mapping
             protected override Expression VisitMember(MemberExpression node)
             {
                 MemberInfo member = node.Member;
@@ -48,7 +46,6 @@ namespace MongoRice.Extensions.Services
                 return base.VisitMember(node);
             }
 
-            // Replace parameters reference
             protected override Expression VisitParameter(ParameterExpression node)
             {
                 if (node.Type == typeof(TDto))
