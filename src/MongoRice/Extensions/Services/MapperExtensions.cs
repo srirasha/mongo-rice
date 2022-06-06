@@ -18,7 +18,7 @@ namespace MongoRice.Extensions.Services
 
             public PredicateVisitor(IMapper mapper)
             {
-                IQueryable<TDto> mockQuery = mapper.ProjectTo<TDto>(new TEntity[0].AsQueryable(), null);
+                IQueryable<TDto> mockQuery = mapper.ProjectTo<TDto>(Array.Empty<TEntity>().AsQueryable(), null);
                 LambdaExpression lambdaExpression = (LambdaExpression)((UnaryExpression)((MethodCallExpression)mockQuery.Expression).Arguments[1]).Operand;
 
                 _bindings = ((MemberInitExpression)lambdaExpression.Body).Bindings.Cast<MemberAssignment>().ToArray();
