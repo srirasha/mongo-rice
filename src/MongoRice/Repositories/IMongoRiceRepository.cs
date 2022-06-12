@@ -28,6 +28,9 @@ namespace MongoRice.Repositories
 
         Task<IEnumerable<TEntity>> Find(Expression<Func<TDocument, bool>> filter, SortDefinition<TDocument> sort = null, CancellationToken cancellationToken = default);
 
+        Task<IEnumerable<TEntity>> FindAll(SortDefinition<TDocument> sort = null,
+                                   CancellationToken cancellationToken = default);
+
         Task<Maybe<TEntity>> FindOne(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default);
 
         Task<Maybe<TEntity>> FindById(string id, CancellationToken cancellationToken = default);
