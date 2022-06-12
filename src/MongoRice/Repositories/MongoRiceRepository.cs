@@ -34,9 +34,26 @@ namespace MongoRice.Repositories
             _collection = database.GetCollection<TDocument>(GetCollectionName(typeof(TDocument)));
         }
 
-        public virtual IQueryable<TDocument> AsQueryable()
+        public IQueryable<TDocument> AsQueryable()
         {
             return _collection.AsQueryable();
+        }
+
+        public virtual async Task DeleteById(string id, CancellationToken cancellationToken = default)
+        {
+            ObjectId objectId = new(id);
+            FilterDefinition<TDocument> filter = Builders<TDocument>.Filter.Eq(doc => doc.Id, objectId);
+            await _collection.FindOneAndDeleteAsync(filter, null, cancellationToken);
+        }
+
+        public virtual async Task DeleteMany(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default)
+        {
+            await _collection.DeleteManyAsync(filter, cancellationToken);
+        }
+
+        public virtual async Task DeleteOne(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default)
+        {
+            await _collection.FindOneAndDeleteAsync(filter, null, cancellationToken);
         }
 
         public async virtual Task<IEnumerable<TEntity>> Find(FilterDefinition<TDocument> filter, SortDefinition<TDocument> sort = null, CancellationToken cancellationToken = default)
@@ -49,6 +66,55 @@ namespace MongoRice.Repositories
         public async virtual Task<IEnumerable<TEntity>> Find(Expression<Func<TDocument, bool>> filter, SortDefinition<TDocument> sort = null, CancellationToken cancellationToken = default)
         {
             return _mapper.Map<IEnumerable<TEntity>>(await _collection.Find(filter)
+                          .Sort(sort)
+                          .ToListAsync(cancellationToken));
+        }
+
+        public virtual async Task<PaginatedResult<TEntity>> Find(FilterDefinition<TDocument> filter,
+                                                                 SortDefinition<TDocument> sort,
+                                                                 int page,
+                                                                 int pageSize,
+                                                                 CancellationToken cancellationToken = default)
+        {
+            AggregateFacet<TDocument, AggregateCountResult> countFacet =
+                AggregateFacet.Create("count",
+                                      PipelineDefinition<TDocument, AggregateCountResult>.Create(new[] { PipelineStageDefinitionBuilder.Count<TDocument>() }));
+
+            AggregateFacet<TDocument, TDocument> dataFacet =
+                AggregateFacet.Create("data",
+                                      PipelineDefinition<TDocument, TDocument>.Create(new[]
+                                      {
+                                          PipelineStageDefinitionBuilder.Sort(sort),
+                                          PipelineStageDefinitionBuilder.Skip<TDocument>((page - 1) * pageSize),
+                                          PipelineStageDefinitionBuilder.Limit<TDocument>(pageSize)
+                                      }));
+
+
+            List<AggregateFacetResults> aggregation = await _collection.Aggregate().Match(filter)
+                                                                                   .Facet(countFacet, dataFacet)
+                                                                                   .ToListAsync(cancellationToken);
+
+            long? count = aggregation.First()
+                                     .Facets
+                                     .First(x => x.Name == "count")
+                                     .Output<AggregateCountResult>()?
+                                     .AsQueryable()
+                                     .FirstOrDefault()?
+                                     .Count;
+
+            int totalPages = (int)Math.Ceiling((double)count / pageSize);
+
+            IReadOnlyList<TDocument> data = aggregation.First()
+                                                       .Facets
+                                                       .First(x => x.Name == "data")
+                                                       .Output<TDocument>();
+
+            return new PaginatedResult<TEntity>(_mapper.Map<IReadOnlyList<TEntity>>(data), count.Value, page, pageSize);
+        }
+
+        public async virtual Task<IEnumerable<TEntity>> FindAll(SortDefinition<TDocument> sort = null, CancellationToken cancellationToken = default)
+        {
+            return _mapper.Map<IEnumerable<TEntity>>(await _collection.Find(Builders<TDocument>.Filter.Empty)
                           .Sort(sort)
                           .ToListAsync(cancellationToken));
         }
@@ -86,70 +152,6 @@ namespace MongoRice.Repositories
             return _mapper.Map<TEntity>(replacedDocument);
         }
 
-        public async Task DeleteById(string id, CancellationToken cancellationToken = default)
-        {
-            ObjectId objectId = new(id);
-            FilterDefinition<TDocument> filter = Builders<TDocument>.Filter.Eq(doc => doc.Id, objectId);
-            await _collection.FindOneAndDeleteAsync(filter, null, cancellationToken);
-        }
-
-        public async Task DeleteMany(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default)
-        {
-            await _collection.DeleteManyAsync(filter, cancellationToken);
-        }
-
-        public async Task DeleteOne(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default)
-        {
-            await _collection.FindOneAndDeleteAsync(filter, null, cancellationToken);
-        }
-
-        public async Task<PaginatedResult<TEntity>> Find(FilterDefinition<TDocument> filter,
-                                                                                       SortDefinition<TDocument> sort,
-                                                                                       int page,
-                                                                                       int pageSize,
-                                                                                       CancellationToken cancellationToken = default)
-        {
-            AggregateFacet<TDocument, AggregateCountResult> countFacet =
-                AggregateFacet.Create("count",
-                                      PipelineDefinition<TDocument, AggregateCountResult>.Create(new[] { PipelineStageDefinitionBuilder.Count<TDocument>() }));
-
-            AggregateFacet<TDocument, TDocument> dataFacet =
-                AggregateFacet.Create("data",
-                                      PipelineDefinition<TDocument, TDocument>.Create(new[]
-                                      {
-                                          PipelineStageDefinitionBuilder.Sort(sort),
-                                          PipelineStageDefinitionBuilder.Skip<TDocument>((page - 1) * pageSize),
-                                          PipelineStageDefinitionBuilder.Limit<TDocument>(pageSize)
-                                      }));
-
-
-            List<AggregateFacetResults> aggregation = await _collection.Aggregate().Match(filter)
-                                                                                   .Facet(countFacet, dataFacet)
-                                                                                   .ToListAsync(cancellationToken);
-
-            long? count = aggregation.First()
-                                     .Facets
-                                     .First(x => x.Name == "count")
-                                     .Output<AggregateCountResult>()?
-                                     .AsQueryable()
-                                     .FirstOrDefault()?
-                                     .Count;
-
-            int totalPages = (int)Math.Ceiling((double)count / pageSize);
-
-            IReadOnlyList<TDocument> data = aggregation.First()
-                                                       .Facets
-                                                       .First(x => x.Name == "data")
-                                                       .Output<TDocument>();
-
-            return new PaginatedResult<TEntity>()
-            {
-                Count = count.Value,
-                PageIndex = page,
-                Result = _mapper.Map<IReadOnlyList<TEntity>>(data),
-                TotalPages = totalPages
-            };
-        }
         private string GetCollectionName(Type documentType)
         {
             CollectionAttribute collectionAttribute = (CollectionAttribute)documentType.GetCustomAttributes(typeof(CollectionAttribute), true).FirstOrDefault();
