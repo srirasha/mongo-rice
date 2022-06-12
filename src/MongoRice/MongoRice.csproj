@@ -4,6 +4,12 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>disable</Nullable>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Authors>Shahrukh Khan</Authors>
+		<Description>A generic MongoDB repository pattern library.</Description>
+		<PackageProjectUrl>https://github.com/srirasha/mongo-rice</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/srirasha/mongo-rice</RepositoryUrl>
+		<PackageTags>mongo;generic;repository</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>
