@@ -7,6 +7,7 @@ using MongoRice.Attributes;
 using MongoRice.Configurations;
 using MongoRice.Documents;
 using MongoRice.Entities;
+using MongoRice.Validations.Attributes;
 using MongoRice.Validations.Configurations;
 using System.Linq.Expressions;
 
@@ -17,14 +18,17 @@ namespace MongoRice.Repositories
                                                            where TDocument : IDocument
     {
         private readonly IMongoCollection<TDocument> _collection;
-        protected readonly IMapper _mapper;
+        private readonly IMapper _mapper;
+        private readonly IValidator<IMongoConfiguration> _mongoConfigurationValidator;
+        private readonly IValidator<CollectionAttribute> _collectionAttributeValidator;
 
         public MongoRiceRepository(IMongoConfiguration configuration, IMapper mapper)
         {
             _mapper = mapper;
+            _mongoConfigurationValidator = new MongoConfigurationValidator();
+            _collectionAttributeValidator = new CollectionAttributeValidator();
 
-            MongoConfigurationValidator _configValidator = new();
-            _configValidator.ValidateAndThrow(configuration);
+            _mongoConfigurationValidator.ValidateAndThrow(configuration);
 
             IMongoDatabase database = new MongoClient(configuration.ConnectionString).GetDatabase(configuration.Database);
             _collection = database.GetCollection<TDocument>(GetCollectionName(typeof(TDocument)));
@@ -146,10 +150,13 @@ namespace MongoRice.Repositories
                 TotalPages = totalPages
             };
         }
-        private static string GetCollectionName(Type documentType)
+        private string GetCollectionName(Type documentType)
         {
-            return ((CollectionAttribute)documentType.GetCustomAttributes(typeof(CollectionAttribute), true)
-                                                     .FirstOrDefault())?.CollectionName;
+            CollectionAttribute collectionAttribute = (CollectionAttribute)documentType.GetCustomAttributes(typeof(CollectionAttribute), true).FirstOrDefault();
+
+            _collectionAttributeValidator.ValidateAndThrow(collectionAttribute);
+
+            return collectionAttribute.CollectionName;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace MongoRice.Tests.Repositories
     public class MongoRiceRepositoryTests
     {
         private readonly Fixture _fixture = new();
-        Mapper _mapper = new(new MapperConfiguration(map => { map.CreateMap<MockEntity, MockEntityDocument>().ReverseMap(); }));
+        private readonly Mapper _mapper = new(new MapperConfiguration(map => { map.CreateMap<MockEntity, MockEntityDocument>().ReverseMap(); }));
 
         [Fact]
         public void Instanciation_Should_Throw_ValidationException_when_ConnectionString_IsNullOrEmpty()
@@ -33,7 +33,7 @@ namespace MongoRice.Tests.Repositories
                                                              .With(prop => prop.Database, string.Empty)
                                                              .Create();
 
-            MapperConfiguration mapperConfiguration = new MapperConfiguration(map => map.CreateMap<MockEntity, MockEntityDocument>().ReverseMap()) { };
+            MapperConfiguration mapperConfiguration = new(map => map.CreateMap<MockEntity, MockEntityDocument>().ReverseMap()) { };
 
 
             Action constructor = () => { _ = new MongoRiceRepository<MockEntity, MockEntityDocument>(mongoConfiguration, _mapper); };
