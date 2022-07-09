@@ -17,15 +17,14 @@ namespace MongoRice.Repositories
                                                            where TEntity : class, new()
                                                            where TDocument : IDocument
     {
-        public IMongoCollection<TDocument> Collection { get; }
-        public IMapper Mapper { get; set; }
-
         private readonly IValidator<IMongoConfiguration> _mongoConfigurationValidator;
-
         private readonly IValidator<CollectionAttribute> _collectionAttributeValidator;
 
         private readonly FilterDefinition<TDocument> _emptyFilterDefinition = Builders<TDocument>.Filter.Empty;
         private readonly SortDefinition<TDocument> _defaultSortDefinition = Builders<TDocument>.Sort.Descending(f => f.Id);
+
+        public IMongoCollection<TDocument> Collection { get; }
+        public IMapper Mapper { get; set; }
 
         public MongoRiceRepository(IMongoConfiguration configuration, IMapper mapper)
         {
