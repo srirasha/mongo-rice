@@ -77,11 +77,11 @@ namespace MongoRice.Repositories
         }
 
         public virtual async Task<PaginatedResult<TEntity>> Find(int page,
-                                                         int pageSize,
-                                                         FilterDefinition<TDocument> filter = null,
-                                                         FindOptions options = null,
-                                                         SortDefinition<TDocument> sort = null,
-                                                         CancellationToken cancellationToken = default)
+                                                                 int pageSize,
+                                                                 FilterDefinition<TDocument> filter = null,
+                                                                 FindOptions options = null,
+                                                                 SortDefinition<TDocument> sort = null,
+                                                                 CancellationToken cancellationToken = default)
         {
             AggregateFacet<TDocument, AggregateCountResult> countFacet =
                 AggregateFacet.Create("count",
@@ -116,7 +116,7 @@ namespace MongoRice.Repositories
                                                        .First(x => x.Name == "data")
                                                        .Output<TDocument>();
 
-            return new PaginatedResult<TEntity>(Mapper.Map<IReadOnlyList<TEntity>>(data), count.Value, page, pageSize);
+            return new PaginatedResult<TEntity>(Mapper.Map<ICollection<TEntity>>(data), count.Value, page, pageSize);
         }
 
         public virtual async Task<IEnumerable<TEntity>> Find(Expression<Func<TDocument, bool>> filter = null,
