@@ -1,4 +1,5 @@
-﻿using CSharpFunctionalExtensions;
+﻿using AutoMapper;
+using CSharpFunctionalExtensions;
 using MongoDB.Driver;
 using MongoRice.Documents;
 using MongoRice.Entities;
@@ -10,6 +11,10 @@ namespace MongoRice.Repositories
                      where TDocument : IDocument
                      where TEntity : class, new()
     {
+        IMongoCollection<TDocument> Collection { get; }
+
+        IMapper Mapper { get; set; }
+
         Task DeleteById(string id, CancellationToken cancellationToken = default);
 
         Task DeleteMany(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default);
