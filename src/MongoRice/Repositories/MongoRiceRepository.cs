@@ -60,8 +60,8 @@ namespace MongoRice.Repositories
         }
 
         public virtual async Task<TEntity> DeleteOne(FilterDefinition<TDocument> filter,
-                                                       FindOneAndDeleteOptions<TDocument> options = null,
-                                                       CancellationToken cancellationToken = default)
+                                                     FindOneAndDeleteOptions<TDocument> options = null,
+                                                     CancellationToken cancellationToken = default)
         {
             return Mapper.Map<TEntity>(await Collection.FindOneAndDeleteAsync(filter, options, cancellationToken));
         }
