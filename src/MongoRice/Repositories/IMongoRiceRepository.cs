@@ -19,9 +19,11 @@ namespace MongoRice.Repositories
                         FindOneAndDeleteOptions<TDocument> options = null,
                         CancellationToken cancellationToken = default);
 
-        Task DeleteMany(FilterDefinition<TDocument> filter = null, CancellationToken cancellationToken = default);
+        Task DeleteMany(FilterDefinition<TDocument> filter = null,
+                        CancellationToken cancellationToken = default);
 
-        Task<TDocument> DeleteOne(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default);
+        Task<TDocument> DeleteOne(FilterDefinition<TDocument> filter,
+                                  CancellationToken cancellationToken = default);
 
         Task<IEnumerable<TEntity>> Find(FilterDefinition<TDocument> filter = null,
                                         SortDefinition<TDocument> sort = null,
