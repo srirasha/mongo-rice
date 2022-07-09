@@ -20,41 +20,52 @@ namespace MongoRice.Repositories
                         CancellationToken cancellationToken = default);
 
         Task DeleteMany(FilterDefinition<TDocument> filter = null,
+                        DeleteOptions options = null,
                         CancellationToken cancellationToken = default);
 
         Task<TDocument> DeleteOne(FilterDefinition<TDocument> filter,
+                                  FindOneAndDeleteOptions<TDocument> options = null,
                                   CancellationToken cancellationToken = default);
 
         Task<IEnumerable<TEntity>> Find(FilterDefinition<TDocument> filter = null,
+                                        FindOptions options = null,
                                         SortDefinition<TDocument> sort = null,
                                         CancellationToken cancellationToken = default);
 
         Task<PaginatedResult<TEntity>> Find(int page,
                                             int pageSize,
                                             FilterDefinition<TDocument> filter = null,
+                                            FindOptions options = null,
                                             SortDefinition<TDocument> sort = null,
                                             CancellationToken cancellationToken = default);
 
         Task<IEnumerable<TEntity>> Find(Expression<Func<TDocument, bool>> filter = null,
+                                        FindOptions options = null,
                                         SortDefinition<TDocument> sort = null,
                                         CancellationToken cancellationToken = default);
 
         Task<IEnumerable<TEntity>> FindAll(SortDefinition<TDocument> sort = null,
+                                           FindOptions options = null,
                                            CancellationToken cancellationToken = default);
 
         Task<Maybe<TEntity>> FindOne(FilterDefinition<TDocument> filter,
+                                     FindOptions options = null,
                                      CancellationToken cancellationToken = default);
 
         Task<Maybe<TEntity>> FindById(string id,
+                                      FindOptions options = null,
                                       CancellationToken cancellationToken = default);
 
         Task<TEntity> InsertOne(TDocument document,
+                                InsertOneOptions options = null,
                                 CancellationToken cancellationToken = default);
 
         Task<IEnumerable<TEntity>> InsertMany(ICollection<TDocument> documents,
-                                   CancellationToken cancellationToken = default);
+                                              InsertManyOptions options = null,
+                                              CancellationToken cancellationToken = default);
 
         Task<TEntity> ReplaceOne(TDocument document,
+                                 FindOneAndReplaceOptions<TDocument> options = null,
                                  CancellationToken cancellationToken = default);
     }
 }
