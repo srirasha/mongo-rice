@@ -83,12 +83,15 @@ namespace MongoRice.Repositories
                                                                  SortDefinition<TDocument> sort = null,
                                                                  CancellationToken cancellationToken = default)
         {
+            string countAggregateName = "count";
+            string dataAggregateName = "data";
+
             AggregateFacet<TDocument, AggregateCountResult> countFacet =
-                AggregateFacet.Create("count",
+                AggregateFacet.Create(countAggregateName,
                                       PipelineDefinition<TDocument, AggregateCountResult>.Create(new[] { PipelineStageDefinitionBuilder.Count<TDocument>() }));
 
             AggregateFacet<TDocument, TDocument> dataFacet =
-                AggregateFacet.Create("data",
+                AggregateFacet.Create(dataAggregateName,
                                       PipelineDefinition<TDocument, TDocument>.Create(new[]
                                       {
                                           PipelineStageDefinitionBuilder.Sort(sort ?? _defaultSortDefinition),
@@ -103,7 +106,7 @@ namespace MongoRice.Repositories
 
             long? count = aggregation.First()
                                      .Facets
-                                     .First(x => x.Name == "count")
+                                     .First(x => x.Name == countAggregateName)
                                      .Output<AggregateCountResult>()?
                                      .AsQueryable()
                                      .FirstOrDefault()?
@@ -113,7 +116,7 @@ namespace MongoRice.Repositories
 
             IReadOnlyList<TDocument> data = aggregation.First()
                                                        .Facets
-                                                       .First(x => x.Name == "data")
+                                                       .First(x => x.Name == dataAggregateName)
                                                        .Output<TDocument>();
 
             return new PaginatedResult<TEntity>(Mapper.Map<ICollection<TEntity>>(data), count.Value, page, pageSize);
