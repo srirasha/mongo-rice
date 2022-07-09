@@ -59,11 +59,11 @@ namespace MongoRice.Repositories
             await Collection.DeleteManyAsync(filter ?? _emptyFilterDefinition, options, cancellationToken);
         }
 
-        public virtual async Task<TDocument> DeleteOne(FilterDefinition<TDocument> filter,
+        public virtual async Task<TEntity> DeleteOne(FilterDefinition<TDocument> filter,
                                                        FindOneAndDeleteOptions<TDocument> options = null,
                                                        CancellationToken cancellationToken = default)
         {
-            return await Collection.FindOneAndDeleteAsync(filter, options, cancellationToken);
+            return Mapper.Map<TEntity>(await Collection.FindOneAndDeleteAsync(filter, options, cancellationToken));
         }
 
         public virtual async Task<IEnumerable<TEntity>> Find(FilterDefinition<TDocument> filter = null,
