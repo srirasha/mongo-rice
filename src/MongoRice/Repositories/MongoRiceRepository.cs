@@ -24,6 +24,9 @@ namespace MongoRice.Repositories
 
         private readonly IValidator<CollectionAttribute> _collectionAttributeValidator;
 
+        private readonly FilterDefinition<TDocument> _emptyFilterDefinition = Builders<TDocument>.Filter.Empty;
+        private readonly SortDefinition<TDocument> _defaultSortDefinition = Builders<TDocument>.Sort.Descending(f => f.Id);
+
         public MongoRiceRepository(IMongoConfiguration configuration, IMapper mapper)
         {
             Mapper = mapper;
@@ -41,41 +44,49 @@ namespace MongoRice.Repositories
             return Collection.AsQueryable();
         }
 
-        public virtual async Task DeleteById(string id, CancellationToken cancellationToken = default)
+        public virtual async Task DeleteById(string id,
+                                             FindOneAndDeleteOptions<TDocument> options = null,
+                                             CancellationToken cancellationToken = default)
         {
             ObjectId objectId = new(id);
             FilterDefinition<TDocument> filter = Builders<TDocument>.Filter.Eq(doc => doc.Id, objectId);
-            await Collection.FindOneAndDeleteAsync(filter, null, cancellationToken);
+            await Collection.FindOneAndDeleteAsync(filter, options, cancellationToken);
         }
 
-        public virtual async Task DeleteMany(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default)
+        public virtual async Task DeleteMany(FilterDefinition<TDocument> filter = null,
+                                             CancellationToken cancellationToken = default)
         {
-            await Collection.DeleteManyAsync(filter, cancellationToken);
+            await Collection.DeleteManyAsync(filter ?? _emptyFilterDefinition, cancellationToken);
         }
 
-        public virtual async Task DeleteOne(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default)
+        public virtual async Task<TDocument> DeleteOne(FilterDefinition<TDocument> filter,
+                                            CancellationToken cancellationToken = default)
         {
-            await Collection.FindOneAndDeleteAsync(filter, null, cancellationToken);
+            return await Collection.FindOneAndDeleteAsync(filter, null, cancellationToken);
         }
 
-        public virtual async Task<IEnumerable<TEntity>> Find(FilterDefinition<TDocument> filter, SortDefinition<TDocument> sort = null, CancellationToken cancellationToken = default)
+        public virtual async Task<IEnumerable<TEntity>> Find(FilterDefinition<TDocument> filter = null,
+                                                             SortDefinition<TDocument> sort = null,
+                                                             CancellationToken cancellationToken = default)
         {
-            return Mapper.Map<IEnumerable<TEntity>>(await Collection.Find(filter)
-                         .Sort(sort)
+            return Mapper.Map<IEnumerable<TEntity>>(await Collection.Find(filter ?? _emptyFilterDefinition)
+                         .Sort(sort ?? _defaultSortDefinition)
                          .ToListAsync(cancellationToken));
         }
 
-        public virtual async Task<IEnumerable<TEntity>> Find(Expression<Func<TDocument, bool>> filter, SortDefinition<TDocument> sort = null, CancellationToken cancellationToken = default)
+        public virtual async Task<IEnumerable<TEntity>> Find(Expression<Func<TDocument, bool>> filter = null,
+                                                             SortDefinition<TDocument> sort = null,
+                                                             CancellationToken cancellationToken = default)
         {
-            return Mapper.Map<IEnumerable<TEntity>>(await Collection.Find(filter)
-                         .Sort(sort)
+            return Mapper.Map<IEnumerable<TEntity>>(await Collection.Find(filter ?? _emptyFilterDefinition)
+                         .Sort(sort ?? _defaultSortDefinition)
                          .ToListAsync(cancellationToken));
         }
 
-        public virtual async Task<PaginatedResult<TEntity>> Find(FilterDefinition<TDocument> filter,
-                                                                 SortDefinition<TDocument> sort,
-                                                                 int page,
+        public virtual async Task<PaginatedResult<TEntity>> Find(int page,
                                                                  int pageSize,
+                                                                 FilterDefinition<TDocument> filter = null,
+                                                                 SortDefinition<TDocument> sort = null,
                                                                  CancellationToken cancellationToken = default)
         {
             AggregateFacet<TDocument, AggregateCountResult> countFacet =
@@ -86,13 +97,13 @@ namespace MongoRice.Repositories
                 AggregateFacet.Create("data",
                                       PipelineDefinition<TDocument, TDocument>.Create(new[]
                                       {
-                                          PipelineStageDefinitionBuilder.Sort(sort),
+                                          PipelineStageDefinitionBuilder.Sort(sort ?? _defaultSortDefinition),
                                           PipelineStageDefinitionBuilder.Skip<TDocument>((page - 1) * pageSize),
                                           PipelineStageDefinitionBuilder.Limit<TDocument>(pageSize)
                                       }));
 
 
-            List<AggregateFacetResults> aggregation = await Collection.Aggregate().Match(filter)
+            List<AggregateFacetResults> aggregation = await Collection.Aggregate().Match(filter ?? _emptyFilterDefinition)
                                                                                   .Facet(countFacet, dataFacet)
                                                                                   .ToListAsync(cancellationToken);
 
@@ -114,19 +125,22 @@ namespace MongoRice.Repositories
             return new PaginatedResult<TEntity>(Mapper.Map<IReadOnlyList<TEntity>>(data), count.Value, page, pageSize);
         }
 
-        public virtual async Task<IEnumerable<TEntity>> FindAll(SortDefinition<TDocument> sort = null, CancellationToken cancellationToken = default)
+        public virtual async Task<IEnumerable<TEntity>> FindAll(SortDefinition<TDocument> sort = null,
+                                                                CancellationToken cancellationToken = default)
         {
-            return Mapper.Map<IEnumerable<TEntity>>(await Collection.Find(Builders<TDocument>.Filter.Empty)
-                         .Sort(sort)
+            return Mapper.Map<IEnumerable<TEntity>>(await Collection.Find(_emptyFilterDefinition)
+                         .Sort(sort ?? _defaultSortDefinition)
                          .ToListAsync(cancellationToken));
         }
 
-        public virtual async Task<Maybe<TEntity>> FindOne(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default)
+        public virtual async Task<Maybe<TEntity>> FindOne(FilterDefinition<TDocument> filter,
+                                                          CancellationToken cancellationToken = default)
         {
             return Maybe.From(Mapper.Map<TEntity>(await Collection.Find(filter).FirstOrDefaultAsync(cancellationToken)));
         }
 
-        public virtual async Task<Maybe<TEntity>> FindById(string id, CancellationToken cancellationToken = default)
+        public virtual async Task<Maybe<TEntity>> FindById(string id,
+                                                           CancellationToken cancellationToken = default)
         {
             ObjectId objectId = new(id);
             FilterDefinition<TDocument> filter = Builders<TDocument>.Filter.Eq(doc => doc.Id, objectId);
@@ -134,19 +148,22 @@ namespace MongoRice.Repositories
             return Maybe.From(Mapper.Map<TEntity>(await Collection.Find(filter).SingleOrDefaultAsync(cancellationToken)));
         }
 
-        public virtual async Task<TEntity> InsertOne(TDocument document, CancellationToken cancellationToken = default)
+        public virtual async Task<TEntity> InsertOne(TDocument document,
+                                                     CancellationToken cancellationToken = default)
         {
             await Collection.InsertOneAsync(document, null, cancellationToken);
             return Mapper.Map<TEntity>(document);
         }
 
-        public virtual async Task<IEnumerable<TEntity>> InsertMany(ICollection<TDocument> documents, CancellationToken cancellationToken = default)
+        public virtual async Task<IEnumerable<TEntity>> InsertMany(ICollection<TDocument> documents,
+                                                                   CancellationToken cancellationToken = default)
         {
             await Collection.InsertManyAsync(documents, null, cancellationToken);
             return Mapper.Map<IEnumerable<TEntity>>(documents);
         }
 
-        public virtual async Task<TEntity> ReplaceOne(TDocument document, CancellationToken cancellationToken = default)
+        public virtual async Task<TEntity> ReplaceOne(TDocument document,
+                                                      CancellationToken cancellationToken = default)
         {
             FilterDefinition<TDocument> filter = Builders<TDocument>.Filter.Eq(doc => doc.Id, document.Id);
             TDocument replacedDocument = await Collection.FindOneAndReplaceAsync(filter, document, new FindOneAndReplaceOptions<TDocument>() { ReturnDocument = ReturnDocument.After }, cancellationToken);
