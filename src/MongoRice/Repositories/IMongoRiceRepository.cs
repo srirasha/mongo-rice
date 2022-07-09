@@ -23,9 +23,9 @@ namespace MongoRice.Repositories
                         DeleteOptions options = null,
                         CancellationToken cancellationToken = default);
 
-        Task<TDocument> DeleteOne(FilterDefinition<TDocument> filter,
-                                  FindOneAndDeleteOptions<TDocument> options = null,
-                                  CancellationToken cancellationToken = default);
+        Task<TEntity> DeleteOne(FilterDefinition<TDocument> filter,
+                                FindOneAndDeleteOptions<TDocument> options = null,
+                                CancellationToken cancellationToken = default);
 
         Task<IEnumerable<TEntity>> Find(FilterDefinition<TDocument> filter = null,
                                         FindOptions options = null,

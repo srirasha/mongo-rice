@@ -6,7 +6,7 @@
 
         public bool HasPreviousPage => PageNumber > 1;
 
-        public IReadOnlyList<TDocument> Items { get; }
+        public ICollection<TDocument> Items { get; }
 
         public int PageNumber { get; }
 
@@ -14,7 +14,7 @@
 
         public int TotalPages { get; }
 
-        public PaginatedResult(IReadOnlyList<TDocument> items, long count, int pageNumber, int pageSize)
+        public PaginatedResult(ICollection<TDocument> items, long count, int pageNumber, int pageSize)
         {
             Items = items;
             PageNumber = pageNumber;

@@ -59,11 +59,11 @@ namespace MongoRice.Repositories
             await Collection.DeleteManyAsync(filter ?? _emptyFilterDefinition, options, cancellationToken);
         }
 
-        public virtual async Task<TDocument> DeleteOne(FilterDefinition<TDocument> filter,
-                                                       FindOneAndDeleteOptions<TDocument> options = null,
-                                                       CancellationToken cancellationToken = default)
+        public virtual async Task<TEntity> DeleteOne(FilterDefinition<TDocument> filter,
+                                                     FindOneAndDeleteOptions<TDocument> options = null,
+                                                     CancellationToken cancellationToken = default)
         {
-            return await Collection.FindOneAndDeleteAsync(filter, options, cancellationToken);
+            return Mapper.Map<TEntity>(await Collection.FindOneAndDeleteAsync(filter, options, cancellationToken));
         }
 
         public virtual async Task<IEnumerable<TEntity>> Find(FilterDefinition<TDocument> filter = null,
@@ -77,18 +77,21 @@ namespace MongoRice.Repositories
         }
 
         public virtual async Task<PaginatedResult<TEntity>> Find(int page,
-                                                         int pageSize,
-                                                         FilterDefinition<TDocument> filter = null,
-                                                         FindOptions options = null,
-                                                         SortDefinition<TDocument> sort = null,
-                                                         CancellationToken cancellationToken = default)
+                                                                 int pageSize,
+                                                                 FilterDefinition<TDocument> filter = null,
+                                                                 FindOptions options = null,
+                                                                 SortDefinition<TDocument> sort = null,
+                                                                 CancellationToken cancellationToken = default)
         {
+            string countAggregateName = "count";
+            string dataAggregateName = "data";
+
             AggregateFacet<TDocument, AggregateCountResult> countFacet =
-                AggregateFacet.Create("count",
+                AggregateFacet.Create(countAggregateName,
                                       PipelineDefinition<TDocument, AggregateCountResult>.Create(new[] { PipelineStageDefinitionBuilder.Count<TDocument>() }));
 
             AggregateFacet<TDocument, TDocument> dataFacet =
-                AggregateFacet.Create("data",
+                AggregateFacet.Create(dataAggregateName,
                                       PipelineDefinition<TDocument, TDocument>.Create(new[]
                                       {
                                           PipelineStageDefinitionBuilder.Sort(sort ?? _defaultSortDefinition),
@@ -103,7 +106,7 @@ namespace MongoRice.Repositories
 
             long? count = aggregation.First()
                                      .Facets
-                                     .First(x => x.Name == "count")
+                                     .First(x => x.Name == countAggregateName)
                                      .Output<AggregateCountResult>()?
                                      .AsQueryable()
                                      .FirstOrDefault()?
@@ -113,10 +116,10 @@ namespace MongoRice.Repositories
 
             IReadOnlyList<TDocument> data = aggregation.First()
                                                        .Facets
-                                                       .First(x => x.Name == "data")
+                                                       .First(x => x.Name == dataAggregateName)
                                                        .Output<TDocument>();
 
-            return new PaginatedResult<TEntity>(Mapper.Map<IReadOnlyList<TEntity>>(data), count.Value, page, pageSize);
+            return new PaginatedResult<TEntity>(Mapper.Map<ICollection<TEntity>>(data), count.Value, page, pageSize);
         }
 
         public virtual async Task<IEnumerable<TEntity>> Find(Expression<Func<TDocument, bool>> filter = null,
