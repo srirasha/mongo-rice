@@ -3,24 +3,29 @@
 
 MongoRice is a generic Mongo repository library built for .NET applications.
 
+# Installation
+
+MongoRice is available on [Nuget](https://www.nuget.org/packages/MongoRice)
+
 # Features
 
 MongoRice allow you to execute the main actions on a collection:
 
+- mapping from documents to entities
 - create
 - delete
 - search
 - paginated search
 - update
 
-See all the features [here](src/Library/Repositories/IMongoRiceRepository.cs).
+See all the features [here](src/MongoRice/Repositories/IMongoRiceRepository.cs).
 
 # Getting started
 
 If you are using IOC, you can declare MongoRice like this:
 
 ```C#
-builder.Services.AddMongoRice(new MongoConfiguration(){ ConnectionString = "myGreatConnectionString", Database = "mySuperDatabase" });
+builder.Services.AddMongoRice(new MongoConfiguration(){ ConnectionString = "myConnectionString", Database = "myDatabase" });
 ```
 That will be useful to automatically inject all your IMongoRiceRepository without declaring them on the services handler.
 
@@ -43,7 +48,7 @@ public class PlayerProfileDocument : Document
 - by dependency injection:
 
 ```C#
-public class GetPlayerProfileByIdQueryHandler : IRequestHandler<GetPlayerProfileByIdQuery, Maybe<PlayerProfileDocument>>
+public class GetPlayerProfileByIdQueryHandler : IRequestHandler<GetPlayerProfileByIdQuery, Maybe<PlayerProfile>>
 {
     private readonly IMongoRiceRepository<PlayerProfileDocument> _playerProfiles;
 
@@ -64,7 +69,7 @@ public class GetPlayerProfileByIdQueryHandler : IRequestHandler<GetPlayerProfile
 ```C#
 MongoRiceRepository<PlayerProfileDocument> playerProfiles = new(new MongoConfiguration() { ConnectionString = "myGreatConnectionString", Database = "mySuperDatabase" });
 
-Maybe<PlayerProfileDocument> maybePlayerProfile = await playerProfiles.FindById("62779e4718dd7e243339b187");
+Maybe<PlayerProfile> maybePlayerProfile = await playerProfiles.FindById("62779e4718dd7e243339b187");
 ```
 
 # Examples
@@ -74,7 +79,7 @@ Maybe<PlayerProfileDocument> maybePlayerProfile = await playerProfiles.FindById(
 Get all the players with a level greater or equal to 100:
 
 ```C#
-IEnumerable<PlayerProfileDocument> searchResult = await _playerProfiles.Find(Builders<PlayerProfileDocument>.Filter.Gte(profile => profile.Level, 100), cancellationToken);
+IEnumerable<PlayerProfile> searchResult = await _playerProfiles.Find(Builders<PlayerProfileDocument>.Filter.Gte(profile => profile.Level, 100), cancellationToken);
 ```
 
 ## Filtered and ordered search:
@@ -82,7 +87,7 @@ IEnumerable<PlayerProfileDocument> searchResult = await _playerProfiles.Find(Bui
 Get all the players with a level greater or equal to 100 ordered by level descending:
 
 ```C#
-IEnumerable<PlayerProfileDocument> searchResult =
+IEnumerable<PlayerProfile> searchResult =
 await _playerProfiles.Find(Builders<PlayerProfileDocument>.Filter.Gte(profile => profile.Level, 100),
                            Builders<PlayerProfileDocument>.Sort.Descending(profile => profile.Level),
                            cancellationToken);
@@ -93,7 +98,7 @@ await _playerProfiles.Find(Builders<PlayerProfileDocument>.Filter.Gte(profile =>
 Get the first page of players profiles with a level greater or equal to 100, ordered by level descending, paginated by 10 elements:
 
 ```C#
-PaginatedResult<PlayerProfileDocument> paginatedSearchResult =
+PaginatedResult<PlayerProfile> paginatedSearchResult =
 await _playerProfiles.Find(Builders<PlayerProfileDocument>.Filter.Gte(profile => profile.Level, 100),
                            Builders<PlayerProfileDocument>.Sort.Descending(profile => profile.Level),
                            1,
