@@ -9,7 +9,8 @@
 		<Description>A generic MongoDB repository pattern library.</Description>
 		<PackageProjectUrl>https://github.com/srirasha/mongo-rice</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/srirasha/mongo-rice</RepositoryUrl>
-		<PackageTags>mongo;generic;repository</PackageTags>
+		<PackageTags>mongo;mongodb;generic;repository</PackageTags>
+		<Version>1.0.2</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
