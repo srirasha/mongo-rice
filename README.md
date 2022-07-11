@@ -5,7 +5,7 @@ MongoRice is a generic Mongo repository library built for .NET applications.
 
 # Installation
 
-MongoRice is available on [Nuget](https://www.nuget.org/packages/MongoRice)
+MongoRice is available on [Nuget](https://www.nuget.org/packages/MongoRice).
 
 # Features
 
@@ -28,6 +28,10 @@ If you are using IOC, you can declare MongoRice like this:
 builder.Services.AddMongoRice(new MongoConfiguration(){ ConnectionString = "myConnectionString", Database = "myDatabase" });
 ```
 That will be useful to automatically inject all your IMongoRiceRepository without declaring them on the services handler.
+
+# Dependencies
+
+MongoRice works with [AutoMapper](https://github.com/AutoMapper/AutoMapper) in order to map your documents into your entities.
 
 # Usage
 
