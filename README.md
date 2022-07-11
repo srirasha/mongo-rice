@@ -52,18 +52,18 @@ public class PlayerProfileDocument : Document
 - by dependency injection:
 
 ```C#
-public class GetPlayerProfileByIdQueryHandler : IRequestHandler<GetPlayerProfileByIdQuery, Maybe<PlayerProfile>>
+public class PlayerProfileService : IPlayerProfileService
 {
     private readonly IMongoRiceRepository<PlayerProfileDocument> _playerProfiles;
 
-    public GetPlayerProfileByIdQueryHandler(IMongoRiceRepository<PlayerProfileDocument> playerProfiles)
+    public PlayerProfileService(IMongoRiceRepository<PlayerProfileDocument> playerProfiles)
     {
         _playerProfiles = playerProfiles;
     }
 
-    public async Task<Maybe<PlayerProfileDocument>> Handle(GetPlayerProfileByIdQuery request, CancellationToken cancellationToken)
+    public async Task<Maybe<PlayerProfile>> GetById(string id, CancellationToken cancellationToken = default)
     {
-        return await _playerProfiles.FindById(request.Id, cancellationToken);
+        return await _playerProfiles.FindById(id, cancellationToken);
     }
 }
 ```
@@ -71,7 +71,7 @@ public class GetPlayerProfileByIdQueryHandler : IRequestHandler<GetPlayerProfile
  - by manual instanciation:
 
 ```C#
-MongoRiceRepository<PlayerProfileDocument> playerProfiles = new(new MongoConfiguration() { ConnectionString = "myGreatConnectionString", Database = "mySuperDatabase" });
+MongoRiceRepository<PlayerProfileDocument> playerProfiles = new(new MongoConfiguration("myConnectionString", "myDatabase", _mapper));
 
 Maybe<PlayerProfile> maybePlayerProfile = await playerProfiles.FindById("62779e4718dd7e243339b187");
 ```
