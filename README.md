@@ -9,7 +9,7 @@ MongoRice is available on [Nuget](https://www.nuget.org/packages/MongoRice).
 
 # Features
 
-MongoRice allow you to execute the main actions on a collection:
+MongoRice allows you to execute the main actions on a collection:
 
 - mapping from documents to entities
 - create
