@@ -2,8 +2,14 @@
 {
     public class MongoConfiguration : IMongoConfiguration
     {
-        public string ConnectionString { get; set; }
+        public MongoConfiguration(string connectionString, string database)
+        {
+            ConnectionString = connectionString;
+            Database = database;
+        }
 
-        public string Database { get; set; }
+        public string ConnectionString { get; init; }
+
+        public string Database { get; init; }
     }
 }
