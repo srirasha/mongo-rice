@@ -10,7 +10,7 @@
 		<PackageProjectUrl>https://github.com/srirasha/mongo-rice</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/srirasha/mongo-rice</RepositoryUrl>
 		<PackageTags>mongo;mongodb;generic;repository</PackageTags>
-		<Version>1.0.2</Version>
+		<Version>1.0.3</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
