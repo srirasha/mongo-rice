@@ -54,17 +54,31 @@ namespace MongoRice.Repositories
             await Collection.DeleteManyAsync(filter ?? _emptyFilterDefinition, options, cancellationToken);
         }
 
+        public virtual async Task DeleteMany(Expression<Func<TDocument, bool>> filter = null,
+                                             DeleteOptions options = null,
+                                             CancellationToken cancellationToken = default)
+        {
+            await Collection.DeleteManyAsync(filter ?? _emptyFilterDefinition, options, cancellationToken);
+        }
+
         public virtual async Task<TDocument> DeleteOne(FilterDefinition<TDocument> filter,
-                                                     FindOneAndDeleteOptions<TDocument> options = null,
-                                                     CancellationToken cancellationToken = default)
+                                                       FindOneAndDeleteOptions<TDocument> options = null,
+                                                       CancellationToken cancellationToken = default)
+        {
+            return await Collection.FindOneAndDeleteAsync(filter, options, cancellationToken);
+        }
+
+        public virtual async Task<TDocument> DeleteOne(Expression<Func<TDocument, bool>> filter = null,
+                                                       FindOneAndDeleteOptions<TDocument> options = null,
+                                                       CancellationToken cancellationToken = default)
         {
             return await Collection.FindOneAndDeleteAsync(filter, options, cancellationToken);
         }
 
         public virtual async Task<IEnumerable<TDocument>> Find(FilterDefinition<TDocument> filter = null,
-                                                             FindOptions options = null,
-                                                             SortDefinition<TDocument> sort = null,
-                                                             CancellationToken cancellationToken = default)
+                                                               FindOptions options = null,
+                                                               SortDefinition<TDocument> sort = null,
+                                                               CancellationToken cancellationToken = default)
         {
             return await Collection.Find(filter ?? _emptyFilterDefinition, options)
                          .Sort(sort ?? _defaultSortDefinition)
@@ -72,11 +86,57 @@ namespace MongoRice.Repositories
         }
 
         public virtual async Task<PaginatedResult<TDocument>> Find(int page,
-                                                                 int pageSize,
-                                                                 FilterDefinition<TDocument> filter = null,
-                                                                 FindOptions options = null,
-                                                                 SortDefinition<TDocument> sort = null,
-                                                                 CancellationToken cancellationToken = default)
+                                                                   int pageSize,
+                                                                   FilterDefinition<TDocument> filter = null,
+                                                                   FindOptions options = null,
+                                                                   SortDefinition<TDocument> sort = null,
+                                                                   CancellationToken cancellationToken = default)
+        {
+            string countAggregateName = "count";
+            string dataAggregateName = "data";
+
+            AggregateFacet<TDocument, AggregateCountResult> countFacet =
+                AggregateFacet.Create(countAggregateName,
+                                      PipelineDefinition<TDocument, AggregateCountResult>.Create(new[] { PipelineStageDefinitionBuilder.Count<TDocument>() }));
+
+            AggregateFacet<TDocument, TDocument> dataFacet =
+                AggregateFacet.Create(dataAggregateName,
+                                      PipelineDefinition<TDocument, TDocument>.Create(new[]
+                                      {
+                                          PipelineStageDefinitionBuilder.Sort(sort ?? _defaultSortDefinition),
+                                          PipelineStageDefinitionBuilder.Skip<TDocument>((page - 1) * pageSize),
+                                          PipelineStageDefinitionBuilder.Limit<TDocument>(pageSize)
+                                      }));
+
+
+            List<AggregateFacetResults> aggregation = await Collection.Aggregate().Match(filter ?? _emptyFilterDefinition)
+                                                                                  .Facet(countFacet, dataFacet)
+                                                                                  .ToListAsync(cancellationToken);
+
+            long? count = aggregation.First()
+                                     .Facets
+                                     .First(x => x.Name == countAggregateName)
+                                     .Output<AggregateCountResult>()?
+                                     .AsQueryable()
+                                     .FirstOrDefault()?
+                                     .Count;
+
+            int totalPages = (int)Math.Ceiling((double)count / pageSize);
+
+            IEnumerable<TDocument> data = aggregation.First()
+                                                       .Facets
+                                                       .First(x => x.Name == dataAggregateName)
+                                                       .Output<TDocument>();
+
+            return new PaginatedResult<TDocument>(data, count.Value, page, pageSize);
+        }
+
+        public virtual async Task<PaginatedResult<TDocument>> Find(int page,
+                                                                   int pageSize,
+                                                                   Expression<Func<TDocument, bool>> filter = null,
+                                                                   FindOptions options = null,
+                                                                   SortDefinition<TDocument> sort = null,
+                                                                   CancellationToken cancellationToken = default)
         {
             string countAggregateName = "count";
             string dataAggregateName = "data";
@@ -118,34 +178,41 @@ namespace MongoRice.Repositories
         }
 
         public virtual async Task<IEnumerable<TDocument>> Find(Expression<Func<TDocument, bool>> filter = null,
-                                                             FindOptions options = null,
-                                                             SortDefinition<TDocument> sort = null,
-                                                             CancellationToken cancellationToken = default)
+                                                               FindOptions options = null,
+                                                               SortDefinition<TDocument> sort = null,
+                                                               CancellationToken cancellationToken = default)
         {
             return await Collection.Find(filter ?? _emptyFilterDefinition, options)
-                         .Sort(sort ?? _defaultSortDefinition)
-                         .ToListAsync(cancellationToken);
+                                   .Sort(sort ?? _defaultSortDefinition)
+                                   .ToListAsync(cancellationToken);
         }
 
         public virtual async Task<IEnumerable<TDocument>> FindAll(SortDefinition<TDocument> sort = null,
-                                                                FindOptions options = null,
-                                                                CancellationToken cancellationToken = default)
+                                                                  FindOptions options = null,
+                                                                  CancellationToken cancellationToken = default)
         {
             return await Collection.Find(_emptyFilterDefinition, options)
-                         .Sort(sort ?? _defaultSortDefinition)
-                         .ToListAsync(cancellationToken);
+                                   .Sort(sort ?? _defaultSortDefinition)
+                                   .ToListAsync(cancellationToken);
         }
 
         public virtual async Task<Maybe<TDocument>> FindOne(FilterDefinition<TDocument> filter,
-                                                          FindOptions options = null,
-                                                          CancellationToken cancellationToken = default)
+                                                            FindOptions options = null,
+                                                            CancellationToken cancellationToken = default)
+        {
+            return Maybe.From(await Collection.Find(filter, options).FirstOrDefaultAsync(cancellationToken));
+        }
+
+        public virtual async Task<Maybe<TDocument>> FindOne(Expression<Func<TDocument, bool>> filter,
+                                                            FindOptions options = null,
+                                                            CancellationToken cancellationToken = default)
         {
             return Maybe.From(await Collection.Find(filter, options).FirstOrDefaultAsync(cancellationToken));
         }
 
         public virtual async Task<Maybe<TDocument>> FindById(string id,
-                                                           FindOptions options = null,
-                                                           CancellationToken cancellationToken = default)
+                                                             FindOptions options = null,
+                                                             CancellationToken cancellationToken = default)
         {
             ObjectId objectId = new(id);
             FilterDefinition<TDocument> filter = Builders<TDocument>.Filter.Eq(doc => doc.Id, objectId);
@@ -154,8 +221,8 @@ namespace MongoRice.Repositories
         }
 
         public virtual async Task<TDocument> InsertOne(TDocument document,
-                                                     InsertOneOptions options = null,
-                                                     CancellationToken cancellationToken = default)
+                                                       InsertOneOptions options = null,
+                                                       CancellationToken cancellationToken = default)
         {
             await Collection.InsertOneAsync(document, options, cancellationToken);
 
@@ -163,8 +230,8 @@ namespace MongoRice.Repositories
         }
 
         public virtual async Task<IEnumerable<TDocument>> InsertMany(ICollection<TDocument> documents,
-                                                                   InsertManyOptions options = null,
-                                                                   CancellationToken cancellationToken = default)
+                                                                     InsertManyOptions options = null,
+                                                                     CancellationToken cancellationToken = default)
         {
             await Collection.InsertManyAsync(documents, options, cancellationToken);
 
@@ -172,10 +239,11 @@ namespace MongoRice.Repositories
         }
 
         public virtual async Task<TDocument> ReplaceOne(TDocument document,
-                                                      FindOneAndReplaceOptions<TDocument> options = null,
-                                                      CancellationToken cancellationToken = default)
+                                                        FindOneAndReplaceOptions<TDocument> options = null,
+                                                        CancellationToken cancellationToken = default)
         {
             FilterDefinition<TDocument> filter = Builders<TDocument>.Filter.Eq(doc => doc.Id, document.Id);
+            
             return await Collection.FindOneAndReplaceAsync(filter,
                                                            document,
                                                            options ?? new FindOneAndReplaceOptions<TDocument>() { ReturnDocument = ReturnDocument.After },
