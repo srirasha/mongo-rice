@@ -6,7 +6,7 @@
 
         public bool HasPreviousPage => PageNumber > 1;
 
-        public ICollection<TDocument> Items { get; }
+        public IEnumerable<TDocument> Items { get; }
 
         public int PageNumber { get; }
 
@@ -14,7 +14,7 @@
 
         public int TotalPages { get; }
 
-        public PaginatedResult(ICollection<TDocument> items, long count, int pageNumber, int pageSize)
+        public PaginatedResult(IEnumerable<TDocument> items, long count, int pageNumber, int pageSize)
         {
             Items = items;
             PageNumber = pageNumber;
