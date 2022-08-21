@@ -37,7 +37,7 @@ namespace MongoRice.Repositories
 
         Task<IEnumerable<TDocument>> Find(Expression<Func<TDocument, bool>> filter = null,
                                           FindOptions options = null,
-                                          SortDefinition<TDocument> sort = null,
+                                          SortOptions<TDocument> sort = null,
                                           CancellationToken cancellationToken = default);
 
         Task<PaginatedResult<TDocument>> Find(int page,
@@ -51,10 +51,14 @@ namespace MongoRice.Repositories
                                               int pageSize,
                                               Expression<Func<TDocument, bool>> filter = null,
                                               FindOptions options = null,
-                                              SortDefinition<TDocument> sort = null,
+                                              SortOptions<TDocument> sort = null,
                                               CancellationToken cancellationToken = default);
 
         Task<IEnumerable<TDocument>> FindAll(SortDefinition<TDocument> sort = null,
+                                             FindOptions options = null,
+                                             CancellationToken cancellationToken = default);
+
+        Task<IEnumerable<TDocument>> FindAll(SortOptions<TDocument> sort = null,
                                              FindOptions options = null,
                                              CancellationToken cancellationToken = default);
 

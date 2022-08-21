@@ -85,6 +85,16 @@ namespace MongoRice.Repositories
                          .ToListAsync(cancellationToken);
         }
 
+        public virtual async Task<IEnumerable<TDocument>> Find(Expression<Func<TDocument, bool>> filter = null,
+                                                               FindOptions options = null,
+                                                               SortOptions<TDocument> sort = null,
+                                                               CancellationToken cancellationToken = default)
+        {
+            return await Collection.Find(filter ?? _emptyFilterDefinition, options)
+                                   .Sort(sort == null ? _defaultSortDefinition : SortOptions<TDocument>.BuildSortFilter(sort))
+                                   .ToListAsync(cancellationToken);
+        }
+
         public virtual async Task<PaginatedResult<TDocument>> Find(int page,
                                                                    int pageSize,
                                                                    FilterDefinition<TDocument> filter = null,
@@ -135,7 +145,7 @@ namespace MongoRice.Repositories
                                                                    int pageSize,
                                                                    Expression<Func<TDocument, bool>> filter = null,
                                                                    FindOptions options = null,
-                                                                   SortDefinition<TDocument> sort = null,
+                                                                   SortOptions<TDocument> sort = null,
                                                                    CancellationToken cancellationToken = default)
         {
             string countAggregateName = "count";
@@ -149,7 +159,7 @@ namespace MongoRice.Repositories
                 AggregateFacet.Create(dataAggregateName,
                                       PipelineDefinition<TDocument, TDocument>.Create(new[]
                                       {
-                                          PipelineStageDefinitionBuilder.Sort(sort ?? _defaultSortDefinition),
+                                          PipelineStageDefinitionBuilder.Sort(sort == null? _defaultSortDefinition : SortOptions<TDocument>.BuildSortFilter(sort)),
                                           PipelineStageDefinitionBuilder.Skip<TDocument>((page - 1) * pageSize),
                                           PipelineStageDefinitionBuilder.Limit<TDocument>(pageSize)
                                       }));
@@ -176,23 +186,21 @@ namespace MongoRice.Repositories
 
             return new PaginatedResult<TDocument>(data, count.Value, page, pageSize);
         }
-
-        public virtual async Task<IEnumerable<TDocument>> Find(Expression<Func<TDocument, bool>> filter = null,
-                                                               FindOptions options = null,
-                                                               SortDefinition<TDocument> sort = null,
-                                                               CancellationToken cancellationToken = default)
-        {
-            return await Collection.Find(filter ?? _emptyFilterDefinition, options)
-                                   .Sort(sort ?? _defaultSortDefinition)
-                                   .ToListAsync(cancellationToken);
-        }
-
         public virtual async Task<IEnumerable<TDocument>> FindAll(SortDefinition<TDocument> sort = null,
                                                                   FindOptions options = null,
                                                                   CancellationToken cancellationToken = default)
         {
             return await Collection.Find(_emptyFilterDefinition, options)
                                    .Sort(sort ?? _defaultSortDefinition)
+                                   .ToListAsync(cancellationToken);
+        }
+
+        public async Task<IEnumerable<TDocument>> FindAll(SortOptions<TDocument> sort = null,
+                                                          FindOptions options = null,
+                                                          CancellationToken cancellationToken = default)
+        {
+            return await Collection.Find(_emptyFilterDefinition, options)
+                                   .Sort(sort == null ? _defaultSortDefinition : SortOptions<TDocument>.BuildSortFilter(sort))
                                    .ToListAsync(cancellationToken);
         }
 
@@ -243,7 +251,7 @@ namespace MongoRice.Repositories
                                                         CancellationToken cancellationToken = default)
         {
             FilterDefinition<TDocument> filter = Builders<TDocument>.Filter.Eq(doc => doc.Id, document.Id);
-            
+
             return await Collection.FindOneAndReplaceAsync(filter,
                                                            document,
                                                            options ?? new FindOneAndReplaceOptions<TDocument>() { ReturnDocument = ReturnDocument.After },
