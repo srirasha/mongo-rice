@@ -88,7 +88,7 @@ Get all the players with a level greater or equal to 100 ordered by level descen
 ```C#
 IEnumerable<PlayerProfile> searchResult =
 await _playerProfiles.Find(profile => profile.Level >= 100,
-                           Builders<PlayerProfileDocument>.Sort.Descending(profile => profile.Level),
+                           new SortOptions<PlayerProfile>(profile => profile.Level, SortDirection.Descending),
                            cancellationToken);
 ```
 
@@ -99,7 +99,7 @@ Get the first page of players profiles with a level greater or equal to 100, ord
 ```C#
 PaginatedResult<PlayerProfile> paginatedSearchResult =
 await _playerProfiles.Find(profile => profile.Level >= 100,
-                           Builders<PlayerProfileDocument>.Sort.Descending(profile => profile.Level),
+                           new SortOptions<PlayerProfile>(profile => profile.Level, SortDirection.Descending),
                            1,
                            10,
                            cancellationToken);
