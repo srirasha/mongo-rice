@@ -1,5 +1,6 @@
 ﻿using MongoDB.Driver;
 using MongoRice.Extensions.Expressions;
+using System;
 using System.Linq.Expressions;
 
 namespace MongoRice.Entities

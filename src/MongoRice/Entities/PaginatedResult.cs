@@ -1,4 +1,7 @@
-﻿namespace MongoRice.Entities
+﻿using System;
+using System.Collections.Generic;
+
+namespace MongoRice.Entities
 {
     public class PaginatedResult<TDocument>
     {

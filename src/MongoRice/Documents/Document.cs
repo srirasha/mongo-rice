@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson;
+using System;
 
 namespace MongoRice.Documents
 {

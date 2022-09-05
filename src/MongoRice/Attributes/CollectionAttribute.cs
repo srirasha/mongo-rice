@@ -1,4 +1,6 @@
-﻿namespace MongoRice.Attributes
+﻿using System;
+
+namespace MongoRice.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
     public class CollectionAttribute : Attribute
