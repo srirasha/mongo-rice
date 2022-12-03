@@ -24,7 +24,7 @@ See all the features [here](src/MongoRice/Repositories/IMongoRiceRepository.cs).
 If you are using IOC, you can declare MongoRice like this:
 
 ```C#
-builder.Services.AddMongoRice(new MongoConfiguration(){ ConnectionString = "myConnectionString", Database = "myDatabaseName" });
+builder.Services.AddMongoRice(new MongoConfiguration("mongodb://root:password@localhost:27017", "myDatabaseName");
 ```
 That will be useful to automatically inject all your IMongoRiceRepository without declaring them on the services handler.
 
