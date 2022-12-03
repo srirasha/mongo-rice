@@ -2,10 +2,10 @@
 {
     public class MongoConfiguration : IMongoConfiguration
     {
-        public MongoConfiguration(string connectionString, string database)
+        public MongoConfiguration(string connectionString, string databaseName)
         {
             ConnectionString = connectionString;
-            Database = database;
+            Database = databaseName;
         }
 
         public string ConnectionString { get; init; }
