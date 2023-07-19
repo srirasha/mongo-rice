@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using FluentValidation.Results;
 using MongoRice.Configurations;
 
 namespace MongoRice.Validations.Configurations
@@ -11,12 +12,15 @@ namespace MongoRice.Validations.Configurations
             RuleFor(conf => conf.Database).NotEmpty();
         }
 
-        protected override void EnsureInstanceNotNull(object instanceToValidate)
+        protected override bool PreValidate(ValidationContext<IMongoConfiguration> context, ValidationResult result)
         {
-            if (instanceToValidate == null)
+            if (context.InstanceToValidate == null)
             {
-                throw new ValidationException($"Providing a {typeof(IMongoConfiguration)} is mandatory");
+                context.AddFailure(string.Empty, "A non-null instance must be passed to the validator");
+                return false;
             }
+
+            return true;
         }
     }
 }
