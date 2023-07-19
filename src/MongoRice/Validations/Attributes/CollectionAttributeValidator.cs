@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
+using FluentValidation.Results;
 using MongoRice.Attributes;
-using MongoRice.Documents;
 
 namespace MongoRice.Validations.Attributes
 {
@@ -11,12 +11,15 @@ namespace MongoRice.Validations.Attributes
             RuleFor(attribute => attribute.CollectionName).NotEmpty();
         }
 
-        protected override void EnsureInstanceNotNull(object instanceToValidate)
+        protected override bool PreValidate(ValidationContext<CollectionAttribute> context, ValidationResult result)
         {
-            if (instanceToValidate == null)
+            if (context.InstanceToValidate == null)
             {
-                throw new ValidationException($"Please ensure a {typeof(CollectionAttribute)} is provided on the {typeof(IDocument)}.");
+                context.AddFailure(string.Empty, "A non-null instance must be passed to the validator");
+                return false;
             }
+
+            return true;
         }
     }
 }
